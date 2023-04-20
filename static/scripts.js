@@ -125,12 +125,15 @@ function init() {
     generatePromptBtn.addEventListener('click', () => {
         promptOutput.textContent = generatePrompt();
         userResponseInput.value = '';
+        successMessageDisplay.style.display = 'none'; // Add this line to hide the success message
         startTimer(300, timerDisplay);
     });
 
     submitResponseBtn.addEventListener('click', () => {
         successMessageDisplay.textContent = 'Great job! Look at you, such a natural!';
+        successMessageDisplay.style.display = 'block'; // Add this line to show the success message
         clearInterval(timerInterval);
+        sendDataToGoogleForm(userResponseInput.value);
     });
 }
 
@@ -155,5 +158,22 @@ function tick(display, timeRemaining) {
     const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
     display.textContent = formattedMinutes + ':' + formattedSeconds;
 }
+
+
+
+function sendDataToGoogleForm(userResponse) {
+  const url = 'https://docs.google.com/forms/d/e/1FAIpQLSf_zllJfg8kbKkwU1uyoahczmD6-0V9lU8albx1aOWGV0ZLUg/formResponse?usp=pp_url&entry.729517572={response}';
+  const formUrl = url.replace('{response}', encodeURIComponent(userResponse));
+  fetch(formUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+}
+
+
+
 
 init();
