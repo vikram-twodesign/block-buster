@@ -1,17 +1,16 @@
-document.getElementById("generate-prompt-btn").addEventListener("click", function () {
-  document.getElementById("prompt-output").innerHTML = "Generated Prompt: " + generatePrompt();
-  startTimer(5 * 60); // 5 minutes timer
-});
+const promptOutput = document.querySelector('#prompt-output');
+const generatePromptBtn = document.querySelector('#generate-prompt-btn');
+const submitResponseBtn = document.querySelector('#submit-response-btn');
+const userResponseInput = document.querySelector('#user-response-input');
+const successMessageDisplay = document.querySelector('#success-message');
+const timerDisplay = document.querySelector('#timer');
 
-document.getElementById("submit-response-btn").addEventListener("click", function () {
-  document.getElementById("user-response-input").disabled = true;
-  document.getElementById("success-message").innerHTML = "Your response has been submitted!";
-});
+let timerInterval;
 
 function generatePrompt() {
-  // You can replace this array with your own set of prompts
-  const prompts = [
-    "Write a short story about a world where everyone can control one of the four elements: water, earth, air, or fire.",
+    const prompts = [
+
+        "Write a short story about a world where everyone can control one of the four elements: water, earth, air, or fire.",
         "Compose a poem about the moon and its influence on human emotions.",
         "Create a narrative about a character who discovers they have the power to travel through time.",
         "Write a flash fiction piece about a conversation between the wind and the sea.",
@@ -107,37 +106,71 @@ function generatePrompt() {
         "Compose a poem about the fleeting nature of happiness.",
         "Write a short story about a character who encounters their doppelganger.",
         "Create a narrative about a character who is transported to a world where their favorite book comes to life.",
-        "Write a flash fiction piece about a character who discovers a secret about their own identity.",
+        "Write a flash fiction piece about a character who discovers a secret about their own identity."
 
-  ];
+    ];
 
-  const randomIndex = Math.floor(Math.random() * prompts.length);
-  return prompts[randomIndex];
+    const randomIndex = Math.floor(Math.random() * prompts.length);
+    return prompts[randomIndex];
 }
 
-function startTimer(duration) {
-  const timerElement = document.getElementById("timer");
-  let timeLeft = duration;
-
-  const countdown = setInterval(function () {
-    const minutes = parseInt(timeLeft / 60, 10);
-    const seconds = parseInt(timeLeft % 60, 10);
-
-    timerElement.textContent = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-    timeLeft--;
-
-    updateTextboxOpacity(timeLeft);
-
-    if (timeLeft < 0) {
-      clearInterval(countdown);
-      document.getElementById("user-response-input").disabled = true;
+function init() {
+    if (!promptOutput || !generatePromptBtn || !submitResponseBtn || !userResponseInput || !successMessageDisplay || !timerDisplay) {
+        console.error('One or more required elements are missing.');
+        return;
     }
-  }, 1000);
+
+    //promptOutput.textContent = generatePrompt();
+
+    generatePromptBtn.addEventListener('click', () => {
+        promptOutput.textContent = generatePrompt();
+        userResponseInput.value = '';
+        successMessageDisplay.style.display = 'none'; // Add this line to hide the success message
+        startTimer(300, timerDisplay);
+    });
+
+    submitResponseBtn.addEventListener('click', () => {
+        successMessageDisplay.textContent = 'Great job! Look at you, such a natural!';
+        successMessageDisplay.style.display = 'block'; // Add this line to show the success message
+        clearInterval(timerInterval);
+        sendDataToGoogleForm(userResponseInput.value);
+    });
 }
 
-function updateTextboxOpacity(timeLeft) {
-  const inputBox = document.getElementById("user-response-input");
-  const totalTime = 5 * 60; // The initial timer value in seconds (5 minutes)
-  const opacity = Math.max(0, timeLeft / totalTime);
-  inputBox.style.opacity = opacity;
+function startTimer(duration, display) {
+    clearInterval(timerInterval);
+    let timeRemaining = duration;
+    tick(display, timeRemaining);
+    timerInterval = setInterval(() => {
+        timeRemaining -= 1;
+        tick(display, timeRemaining);
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            display.textContent = "Your time's up!";
+        }
+    }, 1000);
 }
+
+function tick(display, timeRemaining) {
+    const minutes = parseInt(timeRemaining / 60, 10);
+    const seconds = parseInt(timeRemaining % 60, 10);
+    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+    const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+    display.textContent = formattedMinutes + ':' + formattedSeconds;
+}
+
+
+
+function sendDataToGoogleForm(userResponse) {
+  const url = 'https://docs.google.com/forms/d/e/1FAIpQLSf_zllJfg8kbKkwU1uyoahczmD6-0V9lU8albx1aOWGV0ZLUg/formResponse?usp=pp_url&entry.729517572={response}';
+  const formUrl = url.replace('{response}', encodeURIComponent(userResponse));
+  fetch(formUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+}
+
+init();
