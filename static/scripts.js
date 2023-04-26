@@ -1,13 +1,11 @@
 document.getElementById("generate-prompt-btn").addEventListener("click", function () {
   document.getElementById("prompt-output").innerHTML = "Generated Prompt: " + generatePrompt();
   startTimer(5 * 60); // 5 minutes timer
-  resetInputBox();
 });
 
 document.getElementById("submit-response-btn").addEventListener("click", function () {
+  document.getElementById("user-response-input").disabled = true;
   document.getElementById("success-message").innerHTML = "Your response has been submitted!";
-  const inputBox = document.getElementById("user-response-input");
-  inputBox.setAttribute("readonly", "readonly");
 });
 
 function generatePrompt() {
@@ -121,11 +119,7 @@ function startTimer(duration) {
   const timerElement = document.getElementById("timer");
   let timeLeft = duration;
 
-  if (typeof countdown !== 'undefined') {
-    clearInterval(countdown);
-  }
-
-  countdown = setInterval(function () {
+  const countdown = setInterval(function () {
     const minutes = parseInt(timeLeft / 60, 10);
     const seconds = parseInt(timeLeft % 60, 10);
 
@@ -136,6 +130,7 @@ function startTimer(duration) {
 
     if (timeLeft < 0) {
       clearInterval(countdown);
+      document.getElementById("user-response-input").disabled = true;
     }
   }, 1000);
 }
@@ -145,11 +140,4 @@ function updateTextboxOpacity(timeLeft) {
   const totalTime = 5 * 60; // The initial timer value in seconds (5 minutes)
   const opacity = Math.max(0, timeLeft / totalTime);
   inputBox.style.opacity = opacity;
-}
-
-function resetInputBox() {
-  const inputBox = document.getElementById("user-response-input");
-  inputBox.value = "";
-  inputBox.style.opacity = 1;
-  inputBox.removeAttribute("readonly");
 }
