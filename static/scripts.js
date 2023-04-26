@@ -10,7 +10,6 @@ document.getElementById("submit-response-btn").addEventListener("click", functio
 });
 
 function generatePrompt() {
-  [
         "Write a short story about a world where everyone can control one of the four elements: water, earth, air, or fire.",
         "Compose a poem about the moon and its influence on human emotions.",
         "Create a narrative about a character who discovers they have the power to travel through time.",
@@ -107,8 +106,7 @@ function generatePrompt() {
         "Compose a poem about the fleeting nature of happiness.",
         "Write a short story about a character who encounters their doppelganger.",
         "Create a narrative about a character who is transported to a world where their favorite book comes to life.",
-        "Write a flash fiction piece about a character who discovers a secret about their own identity."
-      ]
+        "Write a flash fiction piece about a character who discovers a secret about their own identity.",
 }
 
 function startTimer(duration) {
