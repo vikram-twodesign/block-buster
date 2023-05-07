@@ -6,7 +6,7 @@ const successMessageDisplay = document.querySelector('#success-message');
 const timerDisplay = document.querySelector('#timer');
 
 let timerInterval;
-let submittedText = ''; // Add this line at the beginning of your scripts.js file
+let submittedText = ''; 
 
 function generatePrompt() {
     const prompts = [
