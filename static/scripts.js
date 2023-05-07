@@ -6,6 +6,7 @@ const successMessageDisplay = document.querySelector('#success-message');
 const timerDisplay = document.querySelector('#timer');
 
 let timerInterval;
+let submittedText = ''; // Add this line at the beginning of your scripts.js file
 
 function generatePrompt() {
     const prompts = [
@@ -130,12 +131,19 @@ function init() {
     });
 
     submitResponseBtn.addEventListener('click', () => {
-        successMessageDisplay.textContent = 'Great job! Look at you, such a natural!';
-        successMessageDisplay.style.display = 'block'; // Add this line to show the success message
-        clearInterval(timerInterval);
-        sendDataToGoogleForm(userResponseInput.value);
-    });
-}
+  successMessageDisplay.textContent = 'Great job! Look at you, such a natural!';
+  successMessageDisplay.style.display = 'block'; // Add this line to show the success message
+  clearInterval(timerInterval);
+
+  // Display the "Copy to Clipboard" button
+  document.getElementById('copyToClipboard').style.display = 'block';
+
+  // Save the submitted text
+  submittedText = userResponseInput.value;
+
+  sendDataToGoogleForm(userResponseInput.value);
+});
+
 
 function startTimer(duration, display) {
     clearInterval(timerInterval);
@@ -161,16 +169,39 @@ function tick(display, timeRemaining) {
 
 
 
-function sendDataToGoogleForm(userResponse) {
-  const url = 'https://docs.google.com/forms/d/e/1FAIpQLSf_zllJfg8kbKkwU1uyoahczmD6-0V9lU8albx1aOWGV0ZLUg/formResponse?usp=pp_url&entry.729517572={response}';
-  const formUrl = url.replace('{response}', encodeURIComponent(userResponse));
-  fetch(formUrl, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+function sendDataToGoogleForm(text) {
+  const formId = "1FAIpQLScvPGsfHcU1m4bF8zE7fa2KTElEs1trtC5XVjZIYuZYXkcY3g";
+  const entryId = "504692446";
+  const url = `https://docs.google.com/forms/d/e/${formId}/formResponse?usp=pp_url&entry.${entryId}=${encodeURIComponent(text)}`;
+
+  fetch(url, {
+    method: "POST",
+    mode: "no-cors",
+  })
+    .then(() => {
+      console.log("Submission successful");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+
+
+document.getElementById("user-response-input").addEventListener("input", function () {
+  const inputText = this.value;
+  const characterCount = inputText.length;
+  document.getElementById("character-count").innerHTML = "Characters: " + characterCount;
+});
+
 }
 
 init();
+
+document.getElementById('copyToClipboard').addEventListener('click', () => {
+    navigator.clipboard.writeText(submittedText).then(() => {
+        console.log('Text copied to clipboard');
+    }).catch((error) => {
+        console.error('Error copying text:', error);
+    });
+});
