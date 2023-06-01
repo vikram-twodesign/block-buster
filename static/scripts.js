@@ -4,9 +4,11 @@ const submitResponseBtn = document.querySelector('#submit-response-btn');
 const userResponseInput = document.querySelector('#user-response-input');
 const successMessageDisplay = document.querySelector('#success-message');
 const timerDisplay = document.querySelector('#timer');
+const copyToClipboardBtn = document.querySelector('#copyToClipboard');
 
 let timerInterval;
-let submittedText = ''; 
+let submittedText = '';
+
 
 function generatePrompt() {
     const prompts = [
@@ -115,36 +117,6 @@ function generatePrompt() {
     return prompts[randomIndex];
 }
 
-function init() {
-    if (!promptOutput || !generatePromptBtn || !submitResponseBtn || !userResponseInput || !successMessageDisplay || !timerDisplay) {
-        console.error('One or more required elements are missing.');
-        return;
-    }
-
-    //promptOutput.textContent = generatePrompt();
-
-    generatePromptBtn.addEventListener('click', () => {
-        promptOutput.textContent = generatePrompt();
-        userResponseInput.value = '';
-        successMessageDisplay.style.display = 'none'; // Add this line to hide the success message
-        startTimer(300, timerDisplay);
-    });
-
-    submitResponseBtn.addEventListener('click', () => {
-  successMessageDisplay.textContent = 'Great job! Look at you, such a natural!';
-  successMessageDisplay.style.display = 'block'; // Add this line to show the success message
-  clearInterval(timerInterval);
-
-  // Display the "Copy to Clipboard" button
-  document.getElementById('copyToClipboard').style.display = 'block';
-
-  // Save the submitted text
-  submittedText = userResponseInput.value;
-
-  sendDataToGoogleForm(userResponseInput.value);
-});
-
-
 function startTimer(duration, display) {
     clearInterval(timerInterval);
     let timeRemaining = duration;
@@ -167,38 +139,60 @@ function tick(display, timeRemaining) {
     display.textContent = formattedMinutes + ':' + formattedSeconds;
 }
 
-
-
 function sendDataToGoogleForm(text) {
-  const formId = "1FAIpQLScvPGsfHcU1m4bF8zE7fa2KTElEs1trtC5XVjZIYuZYXkcY3g";
-  const entryId = "504692446";
-  const url = `https://docs.google.com/forms/d/e/${formId}/formResponse?usp=pp_url&entry.${entryId}=${encodeURIComponent(text)}`;
+    const formId = "1FAIpQLScvPGsfHcU1m4bF8zE7fa2KTElEs1trtC5XVjZIYuZYXkcY3g";
+    const entryId = "504692446";
+    const url = `https://docs.google.com/forms/d/e/${formId}/formResponse?usp=pp_url&entry.${entryId}=${encodeURIComponent(text)}`;
 
-  fetch(url, {
-    method: "POST",
-    mode: "no-cors",
-  })
+    fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+    })
     .then(() => {
-      console.log("Submission successful");
+        console.log("Submission successful");
     })
     .catch((error) => {
-      console.error("Error:", error);
+        console.error("Error:", error);
     });
 }
 
+function init() {
+    if (!promptOutput || !generatePromptBtn || !submitResponseBtn || !userResponseInput || !successMessageDisplay || !timerDisplay || !copyToClipboardBtn) {
+        console.error('One or more required elements are missing.');
+        return;
+    }
 
+    copyToClipboardBtn.style.display = 'none'; // Initialize the "Copy to Clipboard" button as hidden
 
-document.getElementById("user-response-input").addEventListener("input", function () {
-  const inputText = this.value;
-  const characterCount = inputText.length;
-  document.getElementById("character-count").innerHTML = "Characters: " + characterCount;
-});
+    generatePromptBtn.addEventListener('click', () => {
+        promptOutput.textContent = generatePrompt();
+        userResponseInput.value = '';
+        successMessageDisplay.style.display = 'none';
+        startTimer(300, timerDisplay);
+    });
 
+    submitResponseBtn.addEventListener('click', () => {
+        successMessageDisplay.textContent = 'Great job! Look at you, such a natural!';
+        successMessageDisplay.style.display = 'block';
+        clearInterval(timerInterval);
+
+        submittedText = userResponseInput.value;
+        sendDataToGoogleForm(userResponseInput.value);
+
+        // Make the "Copy to Clipboard" button visible
+        copyToClipboardBtn.style.display = 'block';
+    });
+
+    document.getElementById("user-response-input").addEventListener("input", function () {
+        const inputText = this.value;
+        const characterCount = inputText.length;
+        document.getElementById("character-count").innerHTML = "Characters: " + characterCount;
+    });
 }
 
 init();
 
-document.getElementById('copyToClipboard').addEventListener('click', () => {
+copyToClipboardBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(submittedText).then(() => {
         console.log('Text copied to clipboard');
     }).catch((error) => {
